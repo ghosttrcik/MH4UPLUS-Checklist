@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#151923">
+<title>MH4U+ — Village Key Quest Checklist</title>
+<style>
+:root{color-scheme:dark;--bg:#10131a;--panel:#191f2b;--panel2:#202838;--text:#f2f5fa;--muted:#a8b2c2;--accent:#69d49a;--line:#303b4d}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#151c29 0,#10131a 280px);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:900px;margin:0 auto;padding:28px 16px 56px}
+header{margin-bottom:22px}h1{font-size:clamp(25px,5vw,38px);line-height:1.1;margin:0 0 8px}
+.sub{color:var(--muted);margin:0}
+.toolbar{position:sticky;top:0;z-index:2;background:#10131aeF;backdrop-filter:blur(12px);padding:12px 0;border-bottom:1px solid var(--line);margin-bottom:18px}
+.progressline{height:9px;background:#30394a;border-radius:99px;overflow:hidden;margin:9px 0}
+#bar{height:100%;width:0;background:var(--accent);transition:width .2s}
+.stats{display:flex;justify-content:space-between;gap:12px;align-items:center;font-size:14px;color:var(--muted)}
+.controls{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+input[type=search]{flex:1;min-width:180px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--text);font:inherit}
+button{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font:inherit;cursor:pointer}
+button:hover{border-color:var(--accent)}
+.rank{background:var(--panel);border:1px solid var(--line);border-radius:15px;margin:14px 0;overflow:hidden}
+.rankhead{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:var(--panel2);border-bottom:1px solid var(--line)}
+h2{font-size:19px;margin:0}.count{font-size:13px;color:var(--muted)}
+.quest{display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid #293344;align-items:flex-start}
+.quest:last-child{border-bottom:0}.quest input{width:19px;height:19px;margin:2px 0 0;accent-color:var(--accent);flex:none}
+.qname{font-weight:650}.obj{font-size:13px;color:var(--muted);margin-top:2px}
+.quest.done .qname{text-decoration:line-through;color:#8995a6}.quest.done .obj{opacity:.65}
+footer{color:var(--muted);font-size:12px;margin-top:22px}
+@media(min-width:650px){.quest{padding:13px 18px}}
+</style>
+</head>
+<body>
+<main>
+<header>
+<h1>Monster Hunter 4U+</h1>
+<p class="sub">Village Key Quest &amp; Urgent Checklist · Caravan 1★–10★</p>
+</header>
+<section class="toolbar" aria-label="Progress and controls">
+<div class="stats"><span id="progressText">0 / 0 completed</span><span id="percent">0%</span></div>
+<div class="progressline"><div id="bar"></div></div>
+<div class="controls">
+<input id="search" type="search" placeholder="Search quest or monster…" aria-label="Search quests">
+<button id="reset" type="button">Reset checklist</button>
+<button id="copy" type="button">Copy Discord checklist</button>
+</div>
+</section>
+<div id="list"></div>
+<footer>
+Source: uploaded “4U+ Quest List.xlsx” · Only rows with Location = Village and Key Quest / Urgent = TRUE are included.
+Progress is saved in this browser on this device.
+</footer>
+</main>
+<script>
+const quests = [{"rank": 1, "name": "A Winning Combination", "objective": "Gather / deliver objective", "id": "v1-102.0"}, {"rank": 1, "name": "Steak Your Ground", "objective": "Gather / deliver objective", "id": "v1-101.0"}, {"rank": 2, "name": "Ancestral Steppe Fungus Run", "objective": "Gather / deliver objective", "id": "v2-201.0"}, {"rank": 2, "name": "Chip Off the Old Blockade", "objective": "Slay objective", "id": "v2-204.0"}, {"rank": 2, "name": "Den Mothers", "objective": "Slay objective", "id": "v2-202.0"}, {"rank": 2, "name": "Kelbi Cure-All", "objective": "Gather / deliver objective", "id": "v2-203.0"}, {"rank": 2, "name": "Research: Velocidrome", "objective": "Research / expedition: Velocidrome", "id": "v2-1250.0"}, {"rank": 2, "name": "Research: Yian Kut-Ku", "objective": "Research / expedition: Yian Kut-Ku", "id": "v2-1251.0"}, {"rank": 2, "name": "The Stinking Seltas", "objective": "Hunt: Seltas", "id": "v2-209.0"}, {"rank": 3, "name": "Boulder-bash", "objective": "Hunt: Tetsucabra", "id": "v3-303.0"}, {"rank": 3, "name": "Research: Basarios", "objective": "Hunt: Basarios", "id": "v3-1350.0"}, {"rank": 3, "name": "Road Work", "objective": "Capture: Gendrome", "id": "v3-309.0"}, {"rank": 3, "name": "Shipshape Skin", "objective": "Hunt: Gypceros", "id": "v3-306.0"}, {"rank": 3, "name": "Swing into Action", "objective": "Hunt: Kecha Wacha", "id": "v3-301.0"}, {"rank": 4, "name": "Gore Magala Drama", "objective": "Research / expedition: Gore Magala", "id": "v4-1450.0"}, {"rank": 4, "name": "Meownster Hunter Havoc", "objective": "Hunt: Zamtrios", "id": "v4-406.0"}, {"rank": 4, "name": "Najarala Hunt", "objective": "Hunt: Najarala", "id": "v4-411.0"}, {"rank": 4, "name": "Nerscylla Thrilla", "objective": "Hunt: Nerscylla", "id": "v4-401.0"}, {"rank": 4, "name": "Wild Palico Panic", "objective": "Hunt: Congalala", "id": "v4-402.0"}, {"rank": 5, "name": "Major Miner Problem", "objective": "Hunt: Gravios", "id": "v5-505.0"}, {"rank": 5, "name": "Odd Ape Out", "objective": "Hunt: Congalala", "id": "v5-506.0"}, {"rank": 5, "name": "Research: Yian Garuga", "objective": "Hunt: Yian Garuga", "id": "v5-1550.0"}, {"rank": 5, "name": "The Royal Guard", "objective": "Hunt: Seltas Queen, Seltas", "id": "v5-510.0"}, {"rank": 5, "name": "Tigrex Terror", "objective": "Hunt: Tigrex", "id": "v5-517.0"}, {"rank": 5, "name": "Tipping the Scales", "objective": "Hunt: Gore Magala", "id": "v5-501.0"}, {"rank": 5, "name": "Uncorner the Market", "objective": "Hunt: Rathalos, Zinogre", "id": "v5-508.0"}, {"rank": 5, "name": "Zinogre Zone", "objective": "Hunt: Zinogre", "id": "v5-509.0"}, {"rank": 6, "name": "Bird Up!", "objective": "Hunt: Yian Kut-Ku, Seltas", "id": "v6-631.0"}, {"rank": 6, "name": "Bird Wyvern Brawl", "objective": "Hunt: Great Jaggi, Iodrome, Velocidrome, Gendrome", "id": "v6-628.0"}, {"rank": 6, "name": "Consort Copulation", "objective": "Hunt: Rathian, Yian Kut-Ku", "id": "v6-604.0"}, {"rank": 6, "name": "Deep Trouble", "objective": "Slay: Teostra", "id": "v6-2614.0"}, {"rank": 6, "name": "Fleet Action", "objective": "Slay: Dah'ren Mohran", "id": "v6-2607.0"}, {"rank": 6, "name": "Frogger", "objective": "Hunt: Tetsucabra, Gypceros", "id": "v6-630.0"}, {"rank": 6, "name": "Heaven's Wheel", "objective": "Slay: Shagaru Magala", "id": "v6-601.0"}, {"rank": 6, "name": "Hell Hunters", "objective": "Hunt: Great Jaggi, Great Jaggi", "id": "v6-606.0"}, {"rank": 6, "name": "Order of Magnitude", "objective": "Hunt: Kecha Wacha, Rathian", "id": "v6-605.0"}, {"rank": 6, "name": "Research: Kirin", "objective": "Slay: Kirin", "id": "v6-1650.0"}, {"rank": 6, "name": "Shark Swarm", "objective": "Capture: Zamtrios, Khezu", "id": "v6-629.0"}, {"rank": 6, "name": "Simian Slugfest", "objective": "Hunt: Kecha Wacha, Congalala", "id": "v6-627.0"}, {"rank": 6, "name": "Stand Tall", "objective": "Slay: Akantor", "id": "v6-2619.0"}, {"rank": 6, "name": "The Caravaneer's Challenge", "objective": "Hunt: Golden Rajang, Zinogre, Shagaru Magala", "id": "v6-2628.0"}, {"rank": 6, "name": "Tough Love", "objective": "Hunt: Rajang", "id": "v6-2627.0"}, {"rank": 6, "name": "Whole Lava Love", "objective": "Hunt: Gravios", "id": "v6-2602.0"}, {"rank": 6, "name": "Wicked Wings", "objective": "Slay: Kushala Daora", "id": "v6-2625.0"}, {"rank": 7, "name": "Advanced: Speartip Menace", "objective": "Slay: Dalamadur (Head), Dalamadur (Tail)", "id": "v7-10709.0"}, {"rank": 7, "name": "Facility Facilitation", "objective": "Hunt: Cephadrome", "id": "v7-715.0"}, {"rank": 7, "name": "Glacial Grinder", "objective": "Slay: Ukanlos", "id": "v7-10725.0"}, {"rank": 7, "name": "Hot-air Buffoon", "objective": "Hunt: Emerald Congalala", "id": "v7-702.0"}, {"rank": 7, "name": "Invulnerable Insect", "objective": "Hunt: Seltas Queen, Seltas", "id": "v7-716.0"}, {"rank": 7, "name": "Skiff Scuttler", "objective": "Hunt: Daimyo Hermitaur", "id": "v7-701.0"}, {"rank": 8, "name": "In the Pink", "objective": "Hunt: Pink Rathian", "id": "v8-812.0"}, {"rank": 8, "name": "Nocturnal Commission", "objective": "Capture: Rathian", "id": "v8-821.0"}, {"rank": 8, "name": "Scientific Research", "objective": "Hunt: Shagaru Magala", "id": "v8-819.0"}, {"rank": 8, "name": "Skiff Competition", "objective": "Hunt: Monoblos", "id": "v8-801.0"}, {"rank": 8, "name": "Take a Powderstone", "objective": "Gather / deliver objective", "id": "v8-803.0"}, {"rank": 9, "name": "A Light in the Dark", "objective": "Hunt: Gore Magala, Gravios", "id": "v9-925.0"}, {"rank": 9, "name": "An Omen in the Skies", "objective": "Hunt: Azure Rathalos, Seregios", "id": "v9-904.0"}, {"rank": 9, "name": "Black Rock Down", "objective": "Hunt: Black Gravios", "id": "v9-902.0"}, {"rank": 9, "name": "Dance of a Thousand Blades", "objective": "Hunt: Seregios", "id": "v9-901.0"}, {"rank": 9, "name": "Forge Ahead", "objective": "Hunt: Stygian Zinogre", "id": "v9-907.0"}, {"rank": 9, "name": "Glacier's Bane", "objective": "Hunt: Brachydios", "id": "v9-908.0"}, {"rank": 9, "name": "Konchu Extinction", "objective": "Hunt: Yian Kut-Ku, Blue Yian Kut-Ku", "id": "v9-914.0"}, {"rank": 9, "name": "Storm and Fire", "objective": "Hunt: Rathalos, Zinogre", "id": "v9-921.0"}, {"rank": 9, "name": "The Echoing Roar", "objective": "Hunt: Brute Tigrex", "id": "v9-905.0"}, {"rank": 9, "name": "The Wave", "objective": "Hunt: Tidal Najarala, Zamtrios", "id": "v9-917.0"}, {"rank": 9, "name": "Tyrant's Maw", "objective": "Hunt: Deviljho", "id": "v9-909.0"}, {"rank": 10, "name": "Advanced: Quagmire Quarrel", "objective": "Slay: Gogmazios", "id": "v10-11014.0"}, {"rank": 10, "name": "All in Its Place", "objective": "Hunt: Chaotic Gore Magala", "id": "v10-1022.0"}, {"rank": 10, "name": "Bad Hair Rajang", "objective": "Hunt: Golden Rajang", "id": "v10-1019.0"}, {"rank": 10, "name": "Death of a Thousand Cuts", "objective": "Hunt: Seregios (Apex)", "id": "v10-1001.0"}, {"rank": 10, "name": "Egg-straction: The Reckoning", "objective": "Gather / deliver objective", "id": "v10-1008.0"}, {"rank": 10, "name": "Elder Dragon of Mist", "objective": "Slay: Chameleos", "id": "v10-1016.0"}, {"rank": 10, "name": "Into the Mist", "objective": "Slay: Chameleos", "id": "v10-1015.0"}, {"rank": 10, "name": "Kushala Kushowdown", "objective": "Research / expedition: Rusted Kushala Daora", "id": "v10-1002.0"}, {"rank": 10, "name": "Moving Mountains", "objective": "Slay: Dah'ren Mohran", "id": "v10-1012.0"}, {"rank": 10, "name": "Red Dragon's Dawn", "objective": "Slay: Crimson Fatalis", "id": "v10-1009.0"}, {"rank": 10, "name": "The Master's Test", "objective": "Hunt: Diablos (Apex), Seregios (Apex), Deviljho (Apex)", "id": "v10-1028.0"}];
+const ranks = [...new Set(quests.map(q=>q.rank))].sort((a,b)=>a-b);
+const storageKey = "mh4uplus-village-key-quests-v1";
+let checked = {};
+try { checked = JSON.parse(localStorage.getItem(storageKey) || "{}") || {}; } catch(e) { checked = {}; }
+const list = document.getElementById("list");
+const search = document.getElementById("search");
+function save(){ localStorage.setItem(storageKey, JSON.stringify(checked)); updateProgress(); }
+function updateProgress(){
+  const total=quests.length, done=quests.filter(q=>checked[q.id]).length;
+  document.getElementById("progressText").textContent=`${done} / ${total} completed`;
+  document.getElementById("percent").textContent=`${total?Math.round(done/total*100):0}%`;
+  document.getElementById("bar").style.width=`${total?done/total*100:0}%`;
+}
+function render(){
+  const term=search.value.trim().toLowerCase();
+  list.innerHTML="";
+  for(const rank of ranks){
+    const group=quests.filter(q=>q.rank===rank && (!term || (q.name+" "+q.objective).toLowerCase().includes(term)));
+    if(!group.length) continue;
+    const section=document.createElement("section"); section.className="rank";
+    const head=document.createElement("div"); head.className="rankhead";
+    const title=document.createElement("h2"); title.textContent=`Caravan ${rank}★`;
+    const count=document.createElement("span"); count.className="count";
+    const done=group.filter(q=>checked[q.id]).length; count.textContent=`${done}/${group.length}`;
+    head.append(title,count); section.append(head);
+    for(const q of group){
+      const label=document.createElement("label"); label.className="quest"+(checked[q.id]?" done":"");
+      const box=document.createElement("input"); box.type="checkbox"; box.checked=!!checked[q.id];
+      box.addEventListener("change",()=>{checked[q.id]=box.checked;save();render();});
+      const text=document.createElement("div");
+      const name=document.createElement("div");name.className="qname";name.textContent=q.name;
+      const obj=document.createElement("div");obj.className="obj";obj.textContent=q.objective;
+      text.append(name,obj);label.append(box,text);section.append(label);
+    }
+    list.append(section);
+  }
+  updateProgress();
+}
+search.addEventListener("input",render);
+document.getElementById("reset").addEventListener("click",()=>{
+  if(confirm("Reset all checked quests?")){checked={};save();render();}
+});
+document.getElementById("copy").addEventListener("click",async()=>{
+  const lines=["**Monster Hunter 4U+ — Village Key Quests**",""];
+  for(const rank of ranks){
+    lines.push(`**Caravan ${rank}★**`);
+    for(const q of quests.filter(q=>q.rank===rank)) lines.push(`- [${checked[q.id]?"x":" "}] ${q.name} — ${q.objective}`);
+    lines.push("");
+  }
+  try{await navigator.clipboard.writeText(lines.join("\n"));alert("Discord checklist copied!");}
+  catch(e){prompt("Copy this checklist:",lines.join("\n"));}
+});
+render();
+</script>
+</body></html>
